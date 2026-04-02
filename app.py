@@ -8,7 +8,8 @@ import random
 import smtplib
 from email.mime.text import MIMEText
 
-app = Flask(__name__, template_folder="Templates")
+# ✅ FIXED (no wrong folder name)
+app = Flask(__name__)
 app.secret_key = "secret123"
 
 # ---------------- DATABASE ----------------
@@ -48,7 +49,6 @@ def clean_text(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-
 # ---------------- HOME ----------------
 @app.route("/")
 def home():
@@ -58,8 +58,8 @@ def home():
 
 # ---------------- SEND OTP EMAIL ----------------
 def send_otp_email(receiver_email, otp):
-    sender_email = "emailspamdetection555@gmail.com"      # 👉 change this
-    app_password = "phzj cwtn oqqe pgqo"        # 👉 paste app password here
+    sender_email = "emailspamdetection555@gmail.com"   # ⚠️ replace if needed
+    app_password = "phzj cwtn oqqe pgqo"               # ⚠️ replace app password
 
     subject = "OTP Verification"
     body = f"Your OTP is: {otp}"
@@ -75,10 +75,9 @@ def send_otp_email(receiver_email, otp):
         server.login(sender_email, app_password)
         server.send_message(msg)
         server.quit()
-        print("OTP sent to email ✅")
+        print("OTP sent ✅")
     except Exception as e:
-        print("Error:", e)
-
+        print("Email Error:", e)
 
 # ---------------- SIGNUP ----------------
 @app.route("/signup", methods=["GET", "POST"])
@@ -96,7 +95,6 @@ def signup():
 
     return render_template("signup.html")
 
-
 # ---------------- LOGIN ----------------
 @app.route("/login", methods=["GET","POST"])
 def login():
@@ -104,21 +102,17 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        cursor.execute(
-            "SELECT * FROM users WHERE email=? AND password=?",
-            (email, password)
-        )
+        cursor.execute("SELECT * FROM users WHERE email=? AND password=?", (email, password))
         user = cursor.fetchone()
 
         if user:
             session['user_id'] = user[0]
             session['email'] = user[1]
-            return redirect("/")   # ✅ go to homepage
+            return redirect("/")
         else:
             return "Invalid Login"
 
     return render_template("login.html")
-
 
 # ---------------- FORGOT PASSWORD ----------------
 @app.route("/forgot", methods=["GET", "POST"])
@@ -135,7 +129,7 @@ def forgot():
             session["reset_email"] = email
             session["otp"] = otp
 
-            send_otp_email(email, otp)   # ✅ send OTP
+            send_otp_email(email, otp)
 
             return redirect("/otp")
         else:
@@ -143,12 +137,10 @@ def forgot():
 
     return render_template("forgot.html")
 
-
-# ---------------- OTP PAGE ----------------
+# ---------------- OTP ----------------
 @app.route("/otp")
 def otp():
     return render_template("otp.html")
-
 
 # ---------------- VERIFY OTP ----------------
 @app.route("/verify-otp", methods=["POST"])
@@ -160,12 +152,10 @@ def verify_otp():
     else:
         return "Invalid OTP"
 
-
-# ---------------- RESET PASSWORD PAGE ----------------
+# ---------------- RESET PAGE ----------------
 @app.route("/reset")
 def reset():
     return render_template("resetpassword.html")
-
 
 # ---------------- UPDATE PASSWORD ----------------
 @app.route("/reset-password", methods=["POST"])
@@ -178,9 +168,10 @@ def reset_password():
 
     return redirect("/login")
 
+# ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
-    session.clear()          # remove all session data
+    session.clear()
     return redirect("/login")
 
 # ---------------- PREDICT ----------------
@@ -221,10 +212,7 @@ def view_history():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
-    cursor.execute(
-        "SELECT * FROM history WHERE user_id=? ORDER BY id DESC",
-        (session['user_id'],)
-    )
+    cursor.execute("SELECT * FROM history WHERE user_id=? ORDER BY id DESC", (session['user_id'],))
     data = cursor.fetchall()
 
     history = []
@@ -232,8 +220,8 @@ def view_history():
 
     for i, row in enumerate(data):
         history.append({
-            "id": total - i,        # ✅ correct numbering (1,2,3...)
-            "real_id": row[0],      # DB id for delete
+            "id": total - i,
+            "real_id": row[0],
             "email": row[2],
             "result": row[3],
             "date": row[4]
@@ -252,7 +240,7 @@ def delete(id):
 
     return redirect(url_for('view_history'))
 
-# ---------------- DELETE ALL ----------------
+# ---------------- CLEAR ALL ----------------
 @app.route("/clear_history")
 def clear_history():
     if 'user_id' not in session:
@@ -271,17 +259,14 @@ def search():
 
     search_id = request.form.get("search_id")
 
-    cursor.execute(
-        "SELECT * FROM history WHERE user_id=? ORDER BY id DESC",
-        (session['user_id'],)
-    )
+    cursor.execute("SELECT * FROM history WHERE user_id=? ORDER BY id DESC", (session['user_id'],))
     data = cursor.fetchall()
 
     history = []
     total = len(data)
 
     for i, row in enumerate(data):
-        display_id = total - i   # same logic
+        display_id = total - i
 
         if str(display_id) == search_id:
             history.append({
@@ -296,4 +281,4 @@ def search():
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
