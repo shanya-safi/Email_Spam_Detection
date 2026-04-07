@@ -7,6 +7,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
 *{font-family:'Poppins',sans-serif;}
@@ -66,6 +67,13 @@ input{
 .text-danger{
     font-size:13px;
 }
+
+.eye{
+    position:absolute;
+    right:10px;
+    top:12px;
+    cursor:pointer;
+}
 </style>
 </head>
 
@@ -77,24 +85,26 @@ input{
 
 <form method="POST" onsubmit="return validateLogin()" novalidate>
 
+    <!-- EMAIL -->
     <input type="text" id="email" name="email"
+       value="{{ request.form.email or '' }}"
        class="form-control mb-1"
        placeholder="Enter Email"
        autocomplete="off">
 
     <div id="emailError" class="text-danger mb-2"></div>
 
-    <input type="password" id="password" name="password"
-       class="form-control mb-1"
-       placeholder="Enter Password"
-       autocomplete="new-password">
+    <!-- PASSWORD -->
+    <div class="position-relative">
+        <input type="password" id="password" name="password"
+           class="form-control mb-1"
+           placeholder="Enter Password"
+           autocomplete="new-password">
+
+        <span class="eye" onclick="togglePassword()">👁</span>
+    </div>
 
     <div id="passError" class="text-danger mb-3"></div>
-
-    <!-- BACKEND ERROR -->
-    {% if error %}
-    <div class="text-danger mb-3">{{ error }}</div>
-    {% endif %}
 
     <button class="btn btn-custom w-100">Login</button>
 
@@ -111,7 +121,28 @@ input{
 
 </div>
 
+<!-- 🔥 CLEAN SWEETALERT (NO RED LINES) -->
 <script>
+let msg = "{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}";
+
+if(msg){
+    Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: msg,
+        confirmButtonColor: "#00e5ff"
+    });
+}
+</script>
+
+<script>
+// 🔐 Toggle password
+function togglePassword(){
+    let input = document.getElementById("password");
+    input.type = input.type === "password" ? "text" : "password";
+}
+
+// ✅ Validation
 function validateLogin(){
 
     let email = document.getElementById("email");
