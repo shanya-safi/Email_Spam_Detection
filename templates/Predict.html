@@ -21,12 +21,82 @@
         body{
             min-height: 100vh;
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #e0f7fa;
+            margin: 0;
+        }
+
+        /* SIDEBAR */
+        .sidebar{
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 230px;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(12px);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-info-sidebar{
+            color: #b2dfdb;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .sidebar a{
+            color: #e0f7fa;
+            text-decoration: none;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
+
+        .sidebar a:hover{
+            background: rgba(29,233,182,0.2);
+        }
+
+        /* COLLAPSE */
+        .sidebar.collapsed{
+            width: 70px;
+        }
+
+        .sidebar.collapsed a{
+            font-size: 0;
+        }
+
+        .sidebar.collapsed .user-info-sidebar{
+            font-size: 0;
+        }
+
+        /* MAIN */
+        .main-content{
+            margin-left: 230px;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #e0f7fa;
         }
 
+        .main-content.expanded{
+            margin-left: 70px;
+        }
+
+        /* TOGGLE BUTTON */
+        .toggle-btn{
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background:none;
+            border:none;
+            font-size:22px;
+            color:#1de9b6;
+            cursor:pointer;
+            z-index: 1000;
+        }
+
+        /* CARD */
         .glass-card{
             background: rgba(255,255,255,0.12);
             backdrop-filter: blur(12px);
@@ -35,10 +105,6 @@
             max-width: 650px;
             width: 100%;
             box-shadow: 0 25px 50px rgba(0,0,0,0.35);
-        }
-
-        h2{
-            font-weight: 600;
         }
 
         textarea{
@@ -59,14 +125,7 @@
             border: none;
             padding: 12px 32px;
             border-radius: 30px;
-            font-weight: 500;
             color: #00363a;
-            transition: 0.4s;
-        }
-
-        .btn-submit:hover{
-            transform: scale(1.1);
-            box-shadow: 0 12px 30px rgba(0,229,255,0.6);
         }
 
         .btn-clear{
@@ -75,47 +134,74 @@
             padding: 12px 32px;
             border-radius: 30px;
             color: #1de9b6;
-            transition: 0.4s;
         }
 
-        .btn-clear:hover{
-            background: #1de9b6;
-            color: #00363a;
-        }
     </style>
 </head>
 
 <body>
 
-<div class="glass-card animate__animated animate__fadeInUp">
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar"><br><br>
 
-    <h2 class="text-center mb-4">
-        🧠 <span style="color:#1de9b6;">Analyze Email Content</span>
-    </h2>
+    <div class="user-info-sidebar">
+        {% if username %}
+        {{ username }}
+        {% else %}
+        User
+        {% endif %}
+    </div>
 
-    <!-- FLASK FORM -->
-    <form method="POST" action="/Predict">
+    <a href="/profile">👤 Profile</a>
+    <a href="/Predict">📩 Analyze Email</a>
+    <a href="/history">📊 History</a>
+    <a href="/starred">⭐ Starred</a>
+    <a href="/logout">🚪 Logout</a>
+</div>
 
-        <textarea
-            name="email"
-            rows="6"
-            placeholder="Paste or type your email content here..."
-            class="form-control mb-4"
-            required></textarea>
+<!-- TOGGLE -->
+<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
-        <div class="text-center">
-            <button type="submit" class="btn btn-submit me-2">
-                Submit & Analyze 
-            </button>
+<!-- MAIN -->
+<div class="main-content" id="main">
 
-            <button type="reset" class="btn btn-clear">
-                Clear
-            </button>
-        </div>
+    <div class="glass-card animate__animated animate__fadeInUp">
 
-    </form>
+        <h2 class="text-center mb-4">
+            🧠 <span style="color:#1de9b6;">Analyze Email Content</span>
+        </h2>
+
+        <form method="POST" action="/Predict">
+
+            <textarea
+                name="email"
+                rows="6"
+                placeholder="Paste or type your email content here..."
+                class="form-control mb-4"
+                required></textarea>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-submit me-2">
+                    Submit & Analyze 
+                </button>
+
+                <button type="reset" class="btn btn-clear">
+                    Clear
+                </button>
+            </div>
+
+        </form>
+
+    </div>
 
 </div>
+
+<script>
+function toggleSidebar(){
+    document.getElementById("sidebar").classList.toggle("collapsed");
+    document.getElementById("main").classList.toggle("expanded");
+}
+</script>
 
 </body>
 </html>
