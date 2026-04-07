@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -41,14 +41,14 @@
          <span style="color:#1de9b6;">Prediction History</span>
     </h2>
 
-    <!-- SEARCH -->
-    <form action="/search" method="POST" class="d-flex mb-3">
-        <input type="number" name="search_id" class="form-control me-2"
-               placeholder="Enter ID to search" required>
+    SEARCH -->
+    <!-- <form action="/search" method="POST" class="d-flex mb-3">
+        <input type="text" name="keyword" class="form-control me-2"
+               placeholder="Search Here" required>
         <button class="btn btn-info">Search</button>
     </form>
 
-    <!-- DELETE ALL -->
+    DELETE ALL
     {% if history %}
     <div class="text-end mb-3">
         <a href="/clear_history"
@@ -59,8 +59,8 @@
     </div>
     {% endif %}
 
-    <!-- TABLE -->
-    <table class="table table-bordered text-light">
+     TABLE --> 
+    <!-- <table class="table table-bordered text-light">
         <thead>
             <tr>
                 <th>ID</th>
@@ -86,7 +86,11 @@
                 </td>
                 <td>{{ h.date }}</td>
                 <td>
-                    <a href="/delete/{{ h.real_id }}" class="btn-del"></a>
+                    <a href="/delete/{{ h.real_id }}" 
+                       class="btn-del"
+                       onclick="return confirm('Are you sure to delete this record?')">
+                       Delete
+                    </a>
                 </td>
             </tr>
             {% endfor %}
@@ -101,7 +105,7 @@
     </table>
 
     <!-- BACK BUTTON -->
-    <div class="text-center">
+    <!-- <div class="text-center">
         {% if from_search %}
             <a href="/history" class="btn btn-warning mt-3">⬅ Back</a>
         {% else %}
@@ -110,6 +114,307 @@
     </div>
 
 </div>
+
+</body>
+</html>  -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Prediction History</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<style>
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:#e0f7fa;
+    margin:0;
+}
+
+/* SIDEBAR */
+.sidebar{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 230px;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(12px);
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info-sidebar{
+    color: #b2dfdb;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.sidebar a{
+    color: #e0f7fa;
+    text-decoration: none;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+.sidebar a:hover{
+    background: rgba(29,233,182,0.2);
+}
+
+/* COLLAPSE */
+.sidebar.collapsed{
+    width: 70px;
+}
+
+.sidebar.collapsed a{
+    font-size: 0;
+}
+
+.sidebar.collapsed .user-info-sidebar{
+    font-size: 0;
+}
+
+/* MAIN */
+.main-content{
+    margin-left: 230px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-content.expanded{
+    margin-left: 70px;
+}
+
+/* TOGGLE */
+.toggle-btn{
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background:none;
+    border:none;
+    font-size:22px;
+    color:#1de9b6;
+    cursor:pointer;
+    z-index: 1000;
+}
+
+/* CARD */
+.card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    padding:35px;
+    border-radius:20px;
+    width:90%;
+    max-width:1000px;
+}
+
+h2{
+    color:#1de9b6;
+}
+
+.table{
+    background:white;
+    color:black;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.table th{
+    background:#f1f1f1;
+}
+
+.btn-del{
+    background:#ff5252;
+    color:white;
+    padding:5px 12px;
+    border-radius:8px;
+    text-decoration:none;
+}
+
+.hidden{
+    display:none;
+}
+
+tr.selected{
+    background:#e0f7fa !important;
+}
+
+.star{
+    font-size:20px;
+    text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar"><br><br>
+
+    <div class="user-info-sidebar">
+        {% if username %}
+        {{ username }}
+        {% else %}
+        User
+        {% endif %}
+    </div>
+
+    <a href="/profile">👤 Profile</a>
+    <a href="/Predict">📩 Analyze Email</a>
+    <a href="/history">📊 History</a>
+    <a href="/starred">⭐ Starred</a>
+    <a href="/logout">🚪 Logout</a>
+
+</div>
+
+<!-- TOGGLE -->
+<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+<!-- MAIN -->
+<div class="main-content" id="main">
+
+<div class="card">
+
+<h2 class="text-center mb-4">
+    {{ page_title if page_title else "Prediction History" }}
+</h2>
+<!-- SEARCH -->
+<form action="/search" method="POST" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="keyword" class="form-control"
+               placeholder="Search Here..." required>
+        <button class="btn btn-info">Search</button>
+    </div>
+</form>
+
+{% if not from_search %}
+<div class="text-end mb-3">
+    <a href="/clear_history" class="btn btn-warning"
+       onclick="return confirm('Delete all history?')">
+       Delete All
+    </a>
+</div>
+{% endif %}
+
+<form action="/delete_selected" method="POST">
+
+<button id="deleteBtn" type="submit" class="btn btn-danger mb-2 hidden"
+        onclick="return confirm('Delete selected records?')">
+    Delete Selected
+</button>
+
+<table class="table table-bordered text-center">
+<thead>
+<tr>
+    <th id="selectHeader" class="hidden">Select</th>
+    <th>ID</th>
+    <th>Email</th>
+    <th>Result</th>
+    <th>Date</th>
+    <th>Starred</th>
+    <th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+{% if history %}
+{% for h in history %}
+<tr>
+    <td class="checkbox-cell hidden">
+        <input type="checkbox" name="selected_ids" value="{{ h.real_id }}">
+    </td>
+
+    <td onclick="toggleRow(this)" style="cursor:pointer; font-weight:bold;">
+        {{ h.id }}
+    </td>
+
+    <td>{{ h.email }}</td>
+
+    <td>
+        {% if h.result == 'SPAM' %}
+            <span class="badge bg-danger">SPAM</span>
+        {% else %}
+            <span class="badge bg-success">NOT SPAM</span>
+        {% endif %}
+    </td>
+
+    <td>{{ h.date }}</td>
+
+    <td>
+        <a href="/toggle_star/{{ h.real_id }}" onclick="event.stopPropagation()" class="star">
+            {% if h.starred == 1 %} ⭐ {% else %} ☆ {% endif %}
+        </a>
+    </td>
+
+    <td>
+        <a href="/delete/{{ h.real_id }}" 
+           class="btn-del"
+           onclick="event.stopPropagation(); return confirm('Delete this record?')">
+           Delete
+        </a>
+    </td>
+</tr>
+{% endfor %}
+{% else %}
+<tr>
+    <td colspan="7">No data found</td>
+</tr>
+{% endif %}
+</tbody>
+</table>
+
+</form>
+
+<div class="text-center">
+    {% if from_search %}
+        <a href="/history" class="btn btn-warning mt-3">⬅ Back</a>
+    {% else %}
+        <a href="/" class="btn btn-success mt-3">⬅ Home</a>
+    {% endif %}
+</div>
+
+</div>
+</div>
+
+<script>
+function toggleSidebar(){
+    document.getElementById("sidebar").classList.toggle("collapsed");
+    document.getElementById("main").classList.toggle("expanded");
+}
+
+let checkboxVisible = false;
+
+function toggleRow(cell){
+    let allCheckboxCells = document.querySelectorAll('.checkbox-cell');
+    let header = document.getElementById("selectHeader");
+    let deleteBtn = document.getElementById("deleteBtn");
+
+    if(!checkboxVisible){
+        checkboxVisible = true;
+        header.classList.remove("hidden");
+        deleteBtn.classList.remove("hidden");
+
+        allCheckboxCells.forEach(cell => {
+            cell.classList.remove("hidden");
+        });
+    }
+
+    let row = cell.parentElement;
+    let checkbox = row.querySelector('input');
+
+    checkbox.checked = !checkbox.checked;
+    row.classList.toggle("selected");
+}
+</script>
 
 </body>
 </html>
