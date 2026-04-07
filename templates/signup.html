@@ -69,6 +69,12 @@ input{
 
     <form method="POST" class="mt-4" onsubmit="return validateForm()">
 
+        <!-- Username -->
+        <input type="text" id="username" name="username"
+               class="form-control mb-1"
+               placeholder="Enter Username" required>
+        <div id="userError" class="text-danger mb-2" style="font-size:13px;"></div>
+
         <!-- Email -->
         <input type="email" id="email" name="email"
                class="form-control mb-1"
@@ -94,20 +100,34 @@ input{
 
 </div>
 
-<!-- JS VALIDATION -->
 <script>
 
 // allowed domains
 let allowedDomains = ["gmail.com", "yahoo.com", "outlook.com", "icloud.com"];
 
-// email regex
 let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// password regex
 let passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^]).{8,}$/;
 
 
-// 🔴 LIVE EMAIL VALIDATION
+// 🔴 USERNAME VALIDATION
+document.getElementById("username").addEventListener("input", function(){
+    let username = this;
+    let value = username.value.trim();
+    let userError = document.getElementById("userError");
+
+    username.classList.remove("is-invalid");
+    userError.innerText = "";
+
+    if(value === "") return;
+
+    if(value.length < 3){
+        username.classList.add("is-invalid");
+        userError.innerText = "Username must be at least 3 characters";
+    }
+});
+
+
+// 🔴 EMAIL VALIDATION (same)
 document.getElementById("email").addEventListener("input", function(){
 
     let email = this;
@@ -119,21 +139,18 @@ document.getElementById("email").addEventListener("input", function(){
 
     if(value === "") return;
 
-    // no spaces
     if(value.includes(" ")){
         email.classList.add("is-invalid");
         emailError.innerText = "Email should not contain spaces";
         return;
     }
 
-    // format
     if(!emailPattern.test(value)){
         email.classList.add("is-invalid");
         emailError.innerText = "Invalid email format";
         return;
     }
 
-    // no double dots
     if(value.includes("..")){
         email.classList.add("is-invalid");
         emailError.innerText = "Email cannot contain '..'";
@@ -142,7 +159,6 @@ document.getElementById("email").addEventListener("input", function(){
 
     let domain = value.split("@")[1];
 
-    // allowed domain check
     if(!allowedDomains.includes(domain)){
         email.classList.add("is-invalid");
         emailError.innerText = "Only gmail, yahoo, outlook, icloud allowed";
@@ -152,7 +168,7 @@ document.getElementById("email").addEventListener("input", function(){
 });
 
 
-// 🔴 LIVE PASSWORD CLEAR ERROR
+// 🔴 PASSWORD CLEAR ERROR
 document.getElementById("password").addEventListener("input", function(){
     this.classList.remove("is-invalid");
     document.getElementById("passError").innerText = "";
@@ -162,23 +178,33 @@ document.getElementById("password").addEventListener("input", function(){
 // 🔴 FINAL SUBMIT VALIDATION
 function validateForm() {
 
+    let username = document.getElementById("username");
     let email = document.getElementById("email");
     let password = document.getElementById("password");
 
+    let userError = document.getElementById("userError");
     let emailError = document.getElementById("emailError");
     let passError = document.getElementById("passError");
 
     let valid = true;
 
+    username.classList.remove("is-invalid");
     email.classList.remove("is-invalid");
     password.classList.remove("is-invalid");
 
+    userError.innerText = "";
     emailError.innerText = "";
     passError.innerText = "";
 
+    // username check
+    if(username.value.trim().length < 3){
+        username.classList.add("is-invalid");
+        userError.innerText = "Enter valid username";
+        valid = false;
+    }
+
     let value = email.value.trim().toLowerCase();
 
-    // email checks
     if(!emailPattern.test(value) || value.includes(" ") || value.includes("..")){
         email.classList.add("is-invalid");
         emailError.innerText = "Enter valid email";
@@ -192,7 +218,6 @@ function validateForm() {
         }
     }
 
-    // password checks
     if (!passwordPattern.test(password.value)) {
         password.classList.add("is-invalid");
         passError.innerText = "Password must include uppercase, lowercase, number & special character (min 8)";
