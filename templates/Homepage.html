@@ -1,168 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Email Spam Detection</title>
+<meta charset="UTF-8">
+<title>Email Spam Detection</title>
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{
+    font-family: 'Poppins', sans-serif;
+}
 
-    <!-- Animate -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+body{
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    margin: 0;
+    color: #e0f7fa;
+}
 
-    <style>
-        *{
-            font-family: 'Poppins', sans-serif;
-        }
+/* SIDEBAR */
+.sidebar{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 230px;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(12px);
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+}
 
-        body{
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #e0f7fa;
-            position: relative;
-        }
+.sidebar .logo{
+    color: #1de9b6;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
 
-        /*  TOP BAR */
-        .top-bar{
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+/* USER IN SIDEBAR */
+.user-info-sidebar{
+    color: #b2dfdb;
+    font-size: 15px;
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: 500;
+}
 
-        .user-info{
-            color: #b2dfdb;
-            font-size: 14px;
-        }
+.sidebar a{
+    color: #e0f7fa;
+    text-decoration: none;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
 
-        .logout-btn{
-            background: linear-gradient(45deg, #1de9b6, #00e5ff); /* SAME as btn-custom */
-            border-radius: 20px;
-            padding: 8px 18px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #00363a;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
+.sidebar a:hover{
+    background: rgba(29,233,182,0.2);
+    transform: translateX(5px);
+}
 
-        .logout-btn:hover{
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 20px rgba(0,229,255,0.6);
-        }
+/* COLLAPSE */
+.sidebar.collapsed{
+    width: 70px;
+}
 
-            /* CARD */
-        .glass-card{
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(12px);
-            border-radius: 22px;
-            padding: 40px;
-            max-width: 550px;
-            width: 100%;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.35);
-            animation: float 3s ease-in-out infinite;
-            text-align: center;
-        }
+.sidebar.collapsed a{
+    text-align: center;
+    font-size: 0;
+}
 
-        @keyframes float {
-            0%{ transform: translateY(0px); }
-            50%{ transform: translateY(-12px); }
-            100%{ transform: translateY(0px); }
-        }
+.sidebar.collapsed a::before{
+    font-size: 20px;
+}
 
-        .app-title{
-            font-weight: 600;
-            font-size: 2.2rem;
-        }
+.sidebar.collapsed .user-info-sidebar{
+    font-size: 0;
+}
 
-        .highlight{
-            color: #1de9b6;
-        }
+/* MAIN */
+.main-content{
+    margin-left: 230px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
 
-        .btn-custom{
-            background: linear-gradient(45deg, #1de9b6, #00e5ff);
-            border: none;
-            padding: 12px 32px;
-            font-size: 1.1rem;
-            border-radius: 30px;
-            color: #00363a;
-            transition: all 0.4s ease;
-            text-decoration: none;
-        }
+.main-content.expanded{
+    margin-left: 70px;
+}
 
-        .btn-custom:hover{
-            transform: scale(1.12);
-            box-shadow: 0 12px 30px rgba(0,229,255,0.6);
-        }
+/* TOGGLE BUTTON LEFT */
+.toggle-btn{
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background:none;
+    border:none;
+    font-size:22px;
+    color:#1de9b6;
+    cursor:pointer;
+    z-index: 1000;
+}
 
-        .icon{
-            font-size: 60px;
-            margin-bottom: 15px;
-            color: #1de9b6;
-        }
-    </style>
+/* CARD */
+.glass-card{
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    border-radius: 22px;
+    padding: 40px;
+    max-width: 550px;
+    width: 100%;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.35);
+    animation: float 3s ease-in-out infinite;
+    text-align: center;
+}
+
+@keyframes float {
+    0%{ transform: translateY(0px); }
+    50%{ transform: translateY(-12px); }
+    100%{ transform: translateY(0px); }
+}
+
+.app-title{
+    font-weight: 600;
+    font-size: 2.2rem;
+}
+
+.highlight{
+    color: #1de9b6;
+}
+
+.btn-custom{
+    background: linear-gradient(45deg, #1de9b6, #00e5ff);
+    border: none;
+    padding: 12px 32px;
+    font-size: 1.1rem;
+    border-radius: 30px;
+    color: #00363a;
+    transition: 0.4s;
+    text-decoration: none;
+}
+
+.btn-custom:hover{
+    transform: scale(1.12);
+    box-shadow: 0 12px 30px rgba(0,229,255,0.6);
+}
+
+.icon{
+    font-size: 60px;
+    margin-bottom: 15px;
+    color: #1de9b6;
+}
+</style>
 </head>
 
 <body>
 
-    <div class="top-bar">
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar"><br><br>
 
-        {% if email %}
-            <div class="user-info">
-                {{ email }}
-            </div>
+    <!-- USERNAME -->
+    <div class="user-info-sidebar">
+        {% if username %}
+        {{ username }}
         {% else %}
-            <div class="user-info">
-                User
-            </div>
+        User
         {% endif %}
-    
-        <a href="/logout" class="logout-btn">
-             Logout
-        </a>
     </div>
+    <a href="/profile">👤 Profile</a>
+    <a href="/Predict">📩 Analyze Email</a>
+    <a href="/history">📊 History</a>
+    <a href="/starred">⭐ Starred</a>
+    <a href="/logout">🚪 Logout</a>
+</div>
 
-<!-- MAIN CARD -->
-<div class="glass-card animate__animated animate__fadeInUp">
+<!-- TOGGLE BUTTON -->
+<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
-    <!-- ICON -->
-    <div class="icon animate__animated animate__pulse animate__infinite">
-        🧠
-    </div>
+<!-- MAIN -->
+<div class="main-content" id="main">
 
-    <!-- TITLE -->
-    <h1 class="app-title">
-        Email <span class="highlight">Spam Detection</span>
-    </h1>
+    <div class="glass-card animate__animated animate__fadeInUp">
 
-    <!-- DESCRIPTION -->
-    <p class="mt-3">
-        Detect unwanted emails using  
-        <span class="highlight">AI & Machine Learning</span>.
-    </p>
+        <div class="icon animate__animated animate__pulse animate__infinite">
+            🧠
+        </div>
 
-    <!-- BUTTONS -->
-    <div class="mt-4 d-flex justify-content-center gap-3 flex-wrap">
+        <h1 class="app-title">
+            Email <span class="highlight">Spam Detection</span>
+        </h1>
 
-        <a href="/Predict" class="btn-custom">
-            Analyze Email 
-        </a>
+        <p class="mt-3">
+            Detect unwanted emails using  
+            <span class="highlight">AI & Machine Learning</span>.
+        </p>
 
-        <a href="/history" class="btn-custom">
-             View History
-        </a>
+        <div class="mt-4 d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/Predict" class="btn-custom">Analyze Email</a>
+            <a href="/history" class="btn-custom">View History</a>
+        </div>
 
     </div>
 
 </div>
+
+<script>
+function toggleSidebar(){
+    document.getElementById("sidebar").classList.toggle("collapsed");
+    document.getElementById("main").classList.toggle("expanded");
+}
+</script>
 
 </body>
 </html>
