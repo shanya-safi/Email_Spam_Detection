@@ -178,7 +178,8 @@ def forgot():
             session["reset_email"] = email
             session["otp"] = otp
 
-            send_otp_email(email, otp)   # ✅ send OTP
+            # send_otp_email(email, otp)   # ✅ send OTP
+            print("OTP:", otp)
 
             return redirect("/otp")
         else:
