@@ -7,9 +7,10 @@ import sqlite3
 import random
 import smtplib
 from email.mime.text import MIMEText
+import os
 
 
-app = Flask(__name__, template_folder="Templates")
+app = Flask(__name__)
 app.secret_key = "secret123"
 
 @app.context_processor
@@ -511,4 +512,5 @@ def delete_selected():
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
